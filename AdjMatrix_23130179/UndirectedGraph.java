@@ -1,4 +1,4 @@
-package Matrix_23130179;
+package AdjMatrix_23130179;
 
 public class UndirectedGraph extends Graph
 {

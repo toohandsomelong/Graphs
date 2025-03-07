@@ -1,33 +1,33 @@
 package AdjList_23130179;
 
-import java.util.List;
+import java.util.Set;
 
 public class DirectedGraph extends Graph
 {
     @Override
     public void addEdge(String k, String v) 
     {
-        if (!isValidKey(k) || !isValidKey(v))
+        if (!isValidVertex(k) || !isValidVertex(v))
             return;
 
         adjList.get(k).add(v);
         
         // System.out.println("added successfully"); //debug
         if (k.equals(v))
-            arcs.add(v);
+            selfLoops.add(v);
     }
 
     @Override
     public void removeEdge(String k, String v)
     {
-        if (!isValidKey(k) || !isValidKey(v))
+        if (!isValidVertex(k) || !isValidVertex(v))
             return;
 
-        adjList.get(k).remove(adjList.get(k).indexOf(v));
+        adjList.get(k).remove(v);
         
         // System.out.println("removed successfully"); //debug
         if (k.equals(v))
-            arcs.remove(arcs.indexOf(k));
+            selfLoops.remove(k);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class DirectedGraph extends Graph
     {
         int result = 0;
         
-        for (List<String> list : adjList.values()) 
+        for (Set<String> list : adjList.values()) 
         {
             if (!list.contains(vertex))
                 continue;
@@ -63,6 +63,15 @@ public class DirectedGraph extends Graph
     @Override
     public int degreeOf(String vertex)
     {
+        if (!isValidVertex(vertex))
+            return -1;
+
         return inDegreeOf(vertex) + outDegreeOf(vertex);
+    }
+
+    @Override
+    public boolean isBipartite() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isBipartite'");
     }
 }

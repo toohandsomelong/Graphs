@@ -1,25 +1,27 @@
 package AdjList_23130179;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class Graph 
 {
     protected int vertices = 0;
-    protected HashMap<String, List<String>> adjList = new HashMap<String, List<String>>();
-    protected List<String> arcs = new ArrayList<String>();
+    protected HashMap<String, Set<String>> adjList = new HashMap<String, Set<String>>();
+    protected Set<String> selfLoops = new HashSet<String>();
 
-    protected boolean isValidKey(String k)
+    protected boolean isValidVertex(String vertex)
     {
-        if (!adjList.containsKey(k))
-            System.out.println("Vertex: " + k + "not existing");
+        if (!adjList.containsKey(vertex))
+        {
+            System.out.println("Vertex: " + vertex + "not existing");
+            return false;
+        }
         // else
         //     System.out.println("Vertex is valid");
         
-        return adjList.containsKey(k);
+        return true;
     }
     
     public abstract void addEdge(String k, String v);
@@ -30,9 +32,11 @@ public abstract class Graph
 
     public abstract int degreeOf(String vertex);
 
+    public abstract boolean isBipartite();
+
     public void addVertex(String v)
     {
-        adjList.put(v, new ArrayList<String>());
+        adjList.put(v, new HashSet<String>());
     }
 
     public void removeVertex(String v)
@@ -47,44 +51,88 @@ public abstract class Graph
     
     public boolean isHavingArc()
     {
-        if (arcs.isEmpty()) 
+        if (selfLoops.isEmpty()) 
         {
             System.out.println("This graph doesn't have ring");
             return false;
         }
 
-        System.out.println("Ring list: " + arcs);
+        System.out.println("Ring list: " + selfLoops);
 
         return true;
     }
     
-    public List<String> getRingList()
+    public Set<String> getRingList()
     {
-        if (arcs.isEmpty()) 
+        if (selfLoops.isEmpty()) 
         {
             System.out.println("This graph doesn't have ring");
             return null;
         }
 
-        return arcs;
+        return selfLoops;
     }
     
     public boolean isHavingSelfLoop()
     {
-        for (List<String> value : adjList.values())
-            if (hasDuplicates(value))
-                return false;
+        for (Set<String> values : adjList.values())
+            if (hasDuplicates(values))
+                return true;
         
-        return true;
+        return false;
     }
 
-    private boolean hasDuplicates(List<String> list) 
+    private boolean hasDuplicates(Set<String> list) 
     {
         Set<String> set = new HashSet<>();
         for (String str : list)
-            if (!set.add(str)) 
+        {
+            if (!set.add(str))
                 return true;
+            // System.out.println(list);
+            // System.out.println(str);
+        }
 
         return false;
+    }
+
+    public int numEdges() 
+    {
+        int result = 0;
+
+        for (String vertex : adjList.keySet()) {
+            result += degreeOf(vertex);
+        }
+
+        result /= 2;
+
+        return result;
+    }
+    
+    public boolean isCompleteGraph() 
+    {
+        if (isHavingSelfLoop())
+            return false;
+        
+        Set<String> allVertices = new HashSet<>(adjList.keySet());
+        int totalVertices = allVertices.size();
+
+        for (Map.Entry<String, Set<String>> entry : adjList.entrySet())
+        {
+            String vertex = entry.getKey();
+            //list to set for O(1) check contains which is faster than list contains O(n)
+            Set<String> values = new HashSet<String>(entry.getValue());
+
+            if(values.size() != totalVertices - 1)
+                return false;
+
+            for (String v : allVertices)
+            {
+                if (!v.equals(vertex) && !values.contains(v)) 
+                    return false;
+            }
+        }
+
+        return true;
     }
 }
