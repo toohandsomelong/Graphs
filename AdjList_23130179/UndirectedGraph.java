@@ -1,7 +1,9 @@
 package AdjList_23130179;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -77,54 +79,86 @@ public class UndirectedGraph extends Graph
     @Override
     public boolean isBipartite() 
     {
-        // Map to store color assignments for each vertex (0 or 1)
-        Map<String, Integer> colors = new HashMap<>();
+        HashMap<String, Integer> color = new HashMap<>();
 
-        // Check every vertex (this also handles disconnected graphs)
-        for (String vertex : adjList.keySet()) 
+        for (String vertex : adjList.keySet()) {
+            if (color.containsKey(vertex))
+                continue;
+            if (!BFS_Color(vertex, color))
+                return false;
+        }
+        return true;
+    }
+    
+    private boolean BFS_Color(String start, HashMap<String, Integer> color) 
+    {
+        Queue<String> queue = new LinkedList<>();
+        queue.add(start);
+        color.put(start, 0); // assign initial color 0 to the starting vertex
+
+        while (!queue.isEmpty()) 
         {
-            if (!colors.containsKey(vertex)) 
+            String current = queue.poll();
+            int currentColor = color.get(current);
+            Set<String> neighbors = adjList.get(current);
+
+            if (neighbors != null) 
             {
-                if (!bfsCheck(vertex, colors))
-                    return false;
+                for (String neighbor : neighbors) 
+                {
+                    // If neighbor hasn't been colored, assign it the opposite color.
+                    if (!color.containsKey(neighbor)) 
+                    {
+                        color.put(neighbor, 1 - currentColor);
+                        queue.add(neighbor);
+                    } 
+                    // If the neighbor already has the same color, the graph is not bipartite.
+                    else if (color.get(neighbor) == currentColor) 
+                        return false;
+                }
             }
         }
         return true;
     }
 
-    private boolean bfsCheck(String start, Map<String, Integer> colors) 
+    
+    public int countConnectedComponent()
     {
-        Queue<String> queue = new LinkedList<>();
-        colors.put(start, 0);  // Assign an initial color (0) to the starting vertex.
-        queue.offer(start);
+        //always have 1
+        int result = 1;
+        List<String> list = new ArrayList<String>();
 
-        while (!queue.isEmpty()) 
+        Map<String, Boolean> visited = newVisited(adjList.keySet());
+
+        String firstKey = adjList.keySet().iterator().next();
+        BFS(firstKey, list, visited);
+
+        for (String key : visited.keySet()) 
         {
-            // Dequeue a vertex v from the queue
-            String current = queue.poll();
-            int currentColor = colors.get(current);
-            int neighborColor = 1 - currentColor;  // The opposite color
+            if(visited.get(key))
+                continue;
 
-            // Process all neighbors of the current vertex.
-            Set<String> neighbors = adjList.get(current);
-            if (neighbors != null) 
-            {
-                for (String neighbor : neighbors) 
-                {
-                    if (!colors.containsKey(neighbor)) 
-                    {
-                        // Color the neighbor with the opposite color and enqueue it.
-                        colors.put(neighbor, neighborColor);
-                        queue.offer(neighbor);
-                    } 
-                    else if (colors.get(neighbor) == currentColor) 
-                    {
-                        // A neighbor has the same color as the current vertex, so the graph is not bipartite.
-                        return false;
-                    }
-                }
-            }
+            result++;
+            result += countConnectedComponent(key, visited, list);
         }
-        return true;
+
+        return result;
+    }
+    
+    private int countConnectedComponent(String start, Map<String, Boolean> visited, List<String> list)
+    {
+        int result = 0;
+        BFS(start, list, visited);
+
+        for (String key : visited.keySet()) 
+        {
+            if(visited.get(key))
+                continue;
+
+            result++;
+            result += countConnectedComponent(key, visited, list);
+        }
+
+        return result;
     }
 }
