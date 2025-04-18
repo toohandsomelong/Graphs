@@ -1,12 +1,21 @@
 package AdjMatrix_23130179;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Stack;
 
 public class UndirectedGraph extends Graph
 {
+    public UndirectedGraph(UndirectedGraph graph)
+    {
+        super(graph.vertices);
+        adjMatrix = graph.adjMatrix.clone();
+    }
+
     public UndirectedGraph(int vertices) 
     {
         super(vertices);
@@ -15,7 +24,7 @@ public class UndirectedGraph extends Graph
     @Override
     public void addEdge(int x, int y) 
     {
-        if (!isValidVertex(x) && !isValidVertex(y))
+        if (!isValidVertex(x) || !isValidVertex(y))
             return;
 
         adjMatrix[x][y] += 1;
@@ -29,7 +38,7 @@ public class UndirectedGraph extends Graph
     @Override
     public void removeEdge(int x, int y) 
     {
-        if (!isValidVertex(x) && !isValidVertex(y))
+        if (!isValidVertex(x) || !isValidVertex(y))
             return;
 
         adjMatrix[x][y] = 0;
@@ -145,15 +154,121 @@ public class UndirectedGraph extends Graph
         int result = 0;
         BFS(start, list, visited);
 
-        for (int i = 0; i < visited.length; i++) 
-        {
-            if(visited[i])
+        for (int i = 0; i < visited.length; i++) {
+            if (visited[i])
                 continue;
-            
+
             result++;
-            result+=countConnectedComponent(i, visited, list);
+            result += countConnectedComponent(i, visited, list);
         }
 
         return result;
     }
+    
+    /**
+     * To check Eulerian Graph (Euler Circuit):
+     * <ul>
+     * <li>MUST connected.
+     * <li>vertex MUST have an EVEN degree.
+     * <ul>
+     */
+    @Override
+    public boolean isEulerianGraph()
+    {
+        if (adjMatrix.length <= 1 && degreeOf(0) == 0)
+            return false;
+            
+        //must connected
+        if (!isConnected())
+            return false;
+
+        for (int i = 0; i < adjMatrix.length; i++) 
+        {
+            //every vertex must have an even degree
+            if(degreeOf(i) % 2 != 0)
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * To check Semi-Eulerian Graph (Euler Path):
+     * <ul>
+     * <li>MUST strongly connected.
+     * <li>EXACTLY two vertices have an odd degree (and these become the start and end of the path).
+     * <ul>
+     */
+    @Override
+    public boolean isSemiEulerianGraph()
+    {
+        //must connected
+        if (!isConnected())
+            return false;
+
+        int oddDegCount = 0;
+        for (int i = 0; i < adjMatrix.length; i++) {
+            if (degreeOf(i) % 2 != 0)
+                oddDegCount++;
+
+            if (oddDegCount > 2)
+                return false;
+        }
+
+        return (oddDegCount != 0);
+    }
+
+    @Override
+    public List<Integer> findEulerCircuit() 
+    {
+        if(!isEulerianGraph())
+            return null;
+
+        //copy adj matrix
+        int[][] tempMatrix = new int[vertices][];
+        for (int i = 0; i < vertices; i++)
+            tempMatrix[i] = Arrays.copyOf(adjMatrix[i], vertices);
+        
+        Stack<Integer> stack = new Stack<>();
+        List<Integer> subcircuit = new ArrayList<>();
+        int start = 0;
+        
+        stack.push(start); //start = 0
+
+        while (!stack.isEmpty()) {
+            int currentVertex = stack.peek();
+            int u; //next vertex to visit
+            
+            //find next available vertex
+            for (u = 0; u < vertices; u++) 
+                if (tempMatrix[currentVertex][u] > 0) break;
+            
+            if (u < vertices) 
+            {
+                stack.push(u);
+                tempMatrix[currentVertex][u]--;
+                tempMatrix[u][currentVertex]--;
+            } 
+            else 
+                subcircuit.add(stack.pop());
+        }
+        
+        Collections.reverse(subcircuit);
+        return subcircuit;
+    }
+
+    @Override
+    public boolean isTree()
+    {
+        if(!isConnected())
+            return false;
+
+        if(isEulerianGraph())
+            return false;
+
+        if(numEdges() != (vertices - 1))
+            return false;
+
+        return true;
+    }
+    
 }

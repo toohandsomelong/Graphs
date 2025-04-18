@@ -27,16 +27,6 @@ public abstract class Graph
         
         return true;
     }
-    
-    public abstract void addEdge(String k, String v);
-
-    public abstract void removeEdge(String k, String v);
-
-    public abstract String getGraphType();
-
-    public abstract int degreeOf(String vertex);
-
-    public abstract boolean isBipartite();
 
     public void addVertex(String v)
     {
@@ -283,4 +273,18 @@ public abstract class Graph
     {
         return BFS(v);
     }
+    
+    public abstract void addEdge(String k, String v);
+
+    public abstract void removeEdge(String k, String v);
+
+    public abstract String getGraphType();
+
+    public abstract int degreeOf(String vertex);
+
+    public abstract boolean isBipartite();
+
+    public abstract boolean isEulerianGraph();
+
+    public abstract boolean isSemiEulerianGraph();
 }

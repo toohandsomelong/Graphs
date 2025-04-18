@@ -161,4 +161,58 @@ public class UndirectedGraph extends Graph
 
         return result;
     }
+    
+    /**
+     * To check Eulerian Graph (Euler Circuit):
+     * <ul>
+     * <li>MUST connected.
+     * <li>vertex MUST have an EVEN degree.
+     * <ul>
+     */
+    @Override
+    public boolean isEulerianGraph()
+    {
+        if (adjList.keySet().size() <= 1 && degreeOf(adjList.keySet().iterator().next()) == 0)
+            return false;
+        //must connected
+        if (!isConnected())
+            return false;
+
+        for (String vertex : adjList.keySet()) 
+        {
+            //every vertex must have an even degree
+            if(degreeOf(vertex) % 2 != 0)
+                return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * To check Semi-Eulerian Graph (Euler Path):
+     * <ul>
+     * <li>MUST strongly connected.
+     * <li>EXACTLY two vertices have an odd degree (and these become the start and end of the path).
+     * <ul>
+     */
+    @Override
+    public boolean isSemiEulerianGraph()
+    {
+        //must connected
+        if (!isConnected())
+            return false;
+
+        int oddDegCount = 0;
+
+        for (String vertex : adjList.keySet()) 
+        {
+            if(degreeOf(vertex) % 2 != 0)
+                oddDegCount++;
+
+            if (oddDegCount > 2)
+                return false;
+        }
+        
+        return !(oddDegCount == 0);
+    }
 }

@@ -26,16 +26,6 @@ public abstract class Graph
         return true;
     }
 
-    public abstract void addEdge(int x, int y);
-
-    public abstract void removeEdge(int x, int y);
-
-    public abstract String getGraphType();
-
-    public abstract int degreeOf(int vertex);
-
-    public abstract boolean isBipartite();
-
     public void addVertex(int v)
     {
         int[][] newAdjMatrix = new int[vertices + v][vertices + v];
@@ -50,17 +40,23 @@ public abstract class Graph
 
     public void removeVertex(int v)
     {
+        if(!isValidVertex(v))
+        {
+            System.out.println(v + "is not valid");
+            return;
+        }
+
         int[][] newAdjMatrix = new int[vertices - 1][vertices - 1];
 
         //is this the fastest?
         for (int i = 0; i < vertices; i++)
         {
-            if(i == v)
+            if (i == v)
                 continue;
-            
+
             for (int j = 0; j < vertices; j++)
             {
-                if(j == v)
+                if (j == v)
                     continue;
 
                 int i_temp = i;
@@ -68,10 +64,10 @@ public abstract class Graph
 
                 if (i >= v)
                     i_temp = i - 1;
-                
-                if(j >= v)
+
+                if (j >= v)
                     j_temp = j - 1;
-                
+
                 newAdjMatrix[i_temp][j_temp] = adjMatrix[i][j];
             }
         }
@@ -249,7 +245,7 @@ public abstract class Graph
 
             for (int i = 0; i < adjMatrix[current].length; i++) 
             {
-                if (adjMatrix[current][i] == 0)
+                if (adjMatrix[current][i] == Double.POSITIVE_INFINITY)
                     continue;
 
                 if (visited[i])
@@ -307,4 +303,22 @@ public abstract class Graph
     {
         return BFS(v);
     }
+
+    public abstract void addEdge(int x, int y);
+
+    public abstract void removeEdge(int x, int y);
+
+    public abstract String getGraphType();
+
+    public abstract int degreeOf(int vertex);
+
+    public abstract boolean isBipartite();
+
+    public abstract boolean isEulerianGraph();
+
+    public abstract boolean isSemiEulerianGraph();
+
+    public abstract List<Integer> findEulerCircuit();
+
+    public abstract boolean isTree();
 }

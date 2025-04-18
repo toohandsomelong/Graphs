@@ -134,4 +134,62 @@ public class DirectedGraph extends Graph
         return neighbors;
     }
 
+    /**
+     * To check Eulerian Graph (Euler Circuit):
+     * <ul>
+     * <li>MUST strongly connected.
+     * <li>Every vertex MUST have the same number of inDeg and outDeg.
+     * <ul>
+     */
+    @Override
+    public boolean isEulerianGraph() 
+    {
+        //MUST strongly connected
+        if (!isConnected())
+            return false;
+
+        for (String vertex : adjList.keySet()) 
+        {
+            //Every vertex MUST have the same number of inDeg and outDeg.
+            if(inDegreeOf(vertex) != outDegreeOf(vertex))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * To check Semi-Eulerian Graph (Euler Path):
+     * <ul>
+     * <li>MUST strongly connected.
+     * <li>One vertex (the start of the trail) must have out‑degree exactly one more than its in‑degree.
+     * <li>One vertex (the end of the trail) must have in‑degree exactly one more than its out‑degree.
+     * <li>All vertices except two must have equal in‑degree and out‑degree.
+     * <ul>
+     */
+    @Override
+    public boolean isSemiEulerianGraph() 
+    {
+        //MUST strongly connected
+        if (!isConnected())
+            return false;
+
+        int countStart = 0;
+        int countEnd = 0;
+        for (String vertex : adjList.keySet()) 
+        {
+            if (inDegreeOf(vertex) == (outDegreeOf(vertex) + 1))
+                countStart++;
+
+            if (outDegreeOf(vertex) == (inDegreeOf(vertex) + 1))
+                countEnd++;
+
+            if (countStart > 1 || countEnd > 1)
+                return false;
+
+            if (inDegreeOf(vertex) != outDegreeOf(vertex))
+                return false;
+        }
+        
+        return (countStart != 1 || countEnd != 1);
+    }
 }
