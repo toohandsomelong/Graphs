@@ -148,6 +148,25 @@ public abstract class Graph
         return false;
     }
 
+    protected int getMinWeight(int length, Double[] weights, boolean[] visisted)
+    {
+        int minV = -1;
+        Double min = Double.POSITIVE_INFINITY;
+        //find lowest weight
+        for (int i = 0; i < length; i++)
+        {
+            if (visisted[i])
+                continue;
+
+            if (weights[i] < min)
+            {
+                minV = i;
+                min = weights[i];
+            }
+        }
+        return minV;
+    }
+    
     public UndirectedGraph minimumSpanningTree_Kruskal()
     {
         //get list edge to PriorityQueue
@@ -177,8 +196,6 @@ public abstract class Graph
         return temp;
     }
 
-    //dijkstra  
-
     protected List<Edge> getListEdges()
     {
         List<Edge> edges = new ArrayList<>();
@@ -192,6 +209,72 @@ public abstract class Graph
         }
 
         return edges;
+    }
+
+    public List<List<Integer>> shortestPaths_Dijkstra(int start)
+    {
+        //from start set weight that connected to start - update neighbors
+        //then set start = lowest weight and set visisted - find lowest weight
+        //keep doing that until all is visisted - set visisted
+
+        int length = adjMatrix.length;
+        int[] prevs = new int[length];
+
+        Double[] weights = new Double[length];
+        boolean[] visisted = new boolean[length];
+
+        List<List<Integer>> list = new ArrayList<>();
+
+        for (int i = 0; i < length; i++)
+        {
+            weights[i] = Double.POSITIVE_INFINITY;
+            prevs[i] = -1;
+        }
+
+        weights[start] = 0.;
+        int minV = start;
+
+        while (minV >= 0)
+        {
+            System.out.println(minV);
+            //set visisted
+            visisted[minV] = true;
+
+            //set find next vertices
+            for (int j = 0; j < adjMatrix.length; j++)
+            {
+                if (visisted[j])
+                    continue;
+                if (adjMatrix[minV][j] == Double.POSITIVE_INFINITY)
+                    continue;
+                if (weights[j] < adjMatrix[minV][j]) //only replace when weight > new weight
+                    continue;
+
+                weights[j] = adjMatrix[minV][j];
+                prevs[j] = minV;
+            }
+            minV = getMinWeight(length, weights, visisted);
+        }
+
+        for (int i = 0; i < length; i++)
+        {
+            if(!visisted[i])
+                continue;
+
+            List<Integer> l = new ArrayList<>();
+            l.add(i);
+            int temp = prevs[i];
+
+            while (temp >= 0)
+            {
+                l.add(temp);
+                temp = prevs[temp];
+            }
+
+            list.add(l);
+        }
+
+        return list;
     }
 }
 

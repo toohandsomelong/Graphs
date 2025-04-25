@@ -21,8 +21,8 @@ public class DirectedGraph extends Graph
             return;
         }
 
-        if (pathConnected(x, y))
-            return;
+        // if (pathConnected(x, y))
+        //     return;
             
         adjMatrix[x][y] = w;
     }
